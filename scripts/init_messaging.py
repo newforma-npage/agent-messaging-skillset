@@ -7,7 +7,7 @@ Usage:
                            [--owner-name <name>] [--owner-role <role>] [--owner-team <team>]
                            [--owner-email <email>] [--owner-telegram <id>] [--owner-preferred <channel>]
 
-Creates <root>/README.md, <root>/identity-template.md, <root>/identities/,
+Creates <root>/README.md, <root>/identity-template.md, <root>/tools/msgsig.py, <root>/identities/,
 and this agent's inbox <root>/<handle>/ with processed/.
 
 owner.md: if <root>/owner.md does not exist, the owner details are required.
@@ -131,6 +131,8 @@ def main(argv=None):
 
     shutil.copyfile(os.path.join(TEMPLATES, "messaging-README.md"), os.path.join(root, "README.md"))
     shutil.copyfile(os.path.join(TEMPLATES, "identity-template.md"), os.path.join(root, "identity-template.md"))
+    os.makedirs(os.path.join(root, "tools"), exist_ok=True)
+    shutil.copyfile(os.path.join(HERE, "msgsig.py"), os.path.join(root, "tools", "msgsig.py"))
     print(f"root ready: {root}")
     print(f"inbox ready: {os.path.join(root, handle)}")
 

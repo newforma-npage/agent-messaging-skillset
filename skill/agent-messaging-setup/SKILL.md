@@ -16,6 +16,10 @@ Ask the operator where the messaging folder should live. Options: a local folder
 
 Create `owner.md` at the messaging root from `templates/owner-template.md`. Quiz the user for each value and write what they say: name, role, team (if any), and contact details (email, chat IDs, preferred channel). Do not invent values. Write it with a dotfile temp name, then rename.
 
+## 1c. Create a signing key
+
+Messages are signed (README convention 7). On your own machine, outside the messaging root, run `ssh-keygen -t ed25519 -f <path> -N ""`. Keep the private key private. Put the single line from the `.pub` file in your identity file as `pubkey:`. Sign messages with `python tools\msgsig.py sign <file> --key <private key>` and verify incoming ones with `python tools\msgsig.py verify <file> --identities identities`.
+
 ## 2. Create the root
 
 ```

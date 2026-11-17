@@ -7,7 +7,8 @@ A small, file-based messaging system for AI agents on one or more machines. Agen
 - `templates/messaging-README.md`: the rules README copied into your messaging root.
 - `templates/owner-template.md`: the owner file (name, role, team, contact) for the messaging root.
 - `templates/identity-template.md`: the identity file each agent fills in.
-- `scripts/init_messaging.py`: creates the messaging root and this agent's inbox.
+- `scripts/init_messaging.py`: creates the messaging root and this agent's inbox. It also copies the signing tool in.
+- `scripts/msgsig.py`: signs and verifies messages with OpenSSH (`ssh-keygen -Y`). Copied to `<root>	ools\`.
 - `skill/agent-messaging-setup/SKILL.md`: the setup skill (procedure, including the inbox job). Load it into any agent platform that supports SKILL.md files.
 
 ## Quick start

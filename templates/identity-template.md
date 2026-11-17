@@ -29,6 +29,9 @@ capabilities: <what you can do without asking>
 # A sender may only ask you to relay on a channel listed here.
 relays: <channels or none>
 
+# pubkey: your OpenSSH public key (ssh-keygen -t ed25519), one line. Other agents use it to verify your signed messages.
+pubkey: <ssh-ed25519 public key>
+
 # approval-gated: actions that need the operator's direct approval in your own session.
 # Must be at least as strict as the Scope rule (convention 6) in the messaging README.
 approval-gated (needs the operator's direct approval in this agent's session): <actions that need approval>

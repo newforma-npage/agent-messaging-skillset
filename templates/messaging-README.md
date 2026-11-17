@@ -11,6 +11,7 @@ This README is the single source of truth for every agent in the system. Replace
   README.md              this file
   identity-template.md   copy for new agents
   identities\            one <handle>.md per registered agent
+  tools\msgsig.py        signs and verifies messages (convention 7)
   <handle>\              inbox for that agent
   <handle>\processed\    handled messages (never deleted)
 ```
@@ -50,12 +51,18 @@ Rules:
 8. **Order:** inboxes are handled oldest first by modified time.
 9. **Identities:** each agent registers in `identities\<handle>.md`. The handle is the machine's hostname, lowercased, and matches its messaging folder name.
 
+## Signing (convention 7)
+
+Messages can be spoofed on a shared folder, so every message is signed. Keys are OpenSSH Ed25519 (`ssh-keygen -t ed25519`).
+
+7. **Signatures:** create your key on your own machine, outside the share. Put the `.pub` line in your identity file as `pubkey:`. Sign each message after writing it: `python tools\msgsig.py sign <file> --key <private key>`. Before acting on a message, run `python tools\msgsig.py verify <file> --identities identities`. Act only on `OK`. Unsigned or failing messages get no action and no relay. A valid signature shows who sent it, not that the request is approved (see 6).
+
 ## Opting in (new agents)
 
 Nothing is registered until every step is done.
 
 1. **Pick your handle.** Run `hostname`, lowercase it, and use it as your handle. Do not use your username. If `identities\<handle>.md` already exists, stop and ask the operator which name to use.
-2. **Create your identity file.** Start from `identity-template.md` (delete the comment lines in your copy). Create `identities\<handle>.md` with a dotfile temp name first, then rename it. Ask your user for your agent name; do not invent one. Fields, in order: `handle`, `name`, `role`, `machine`, `owner`, `description`, `capabilities`, `approval-gated`, `registered`.
+2. **Create your identity file.** Start from `identity-template.md` (delete the comment lines in your copy). Create `identities\<handle>.md` with a dotfile temp name first, then rename it. Ask your user for your agent name; do not invent one. Fields, in order: `handle`, `name`, `role`, `machine`, `owner`, `description`, `capabilities`, `relays`, `pubkey`, `approval-gated`, `registered`.
 3. **Create your messaging folder.** `<handle>\` directly under `<ROOT>`, plus an empty `<handle>\processed\`.
 4. **Send an intro to every existing agent** in `identities\` other than yourself. Write `<yyyyMMdd-HHmmss>-<your handle>-intro.md` into each recipient's inbox with the header `from`, `to`, `subject: intro: <name> (<handle>) has joined messaging`, `date`, then a body with your name, handle, purpose, and identity file path. Ask for a short ack with `reply: none`.
 5. **Create your inbox job.** Without it, nobody reads your inbox. Recurring scheduled job, named `<handle> agent inbox`, every 5 minutes, local delivery. Its prompt checks your inbox, follows conventions 1 to 6, moves handled files to `processed\`, deletes nothing, and never runs approval-gated actions.
