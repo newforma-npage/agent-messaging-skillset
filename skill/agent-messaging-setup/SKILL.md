@@ -26,11 +26,11 @@ Messages are signed (README convention 7). On your own machine, outside the mess
 python scripts/init_messaging.py --root "<ROOT>" --handle "<hostname lowercase>" --agent-name "<name from user>" --role internal --owner "<owner>" --machine "<machine description>"
 ```
 
-This creates the README, the identity template, `identities\`, and this agent's inbox with `processed\`. It writes the identity file only when `--agent-name` is given. Ask the user for the name first.
+This creates the README, the identity template, `identities\`, `errors\` (with its README), and this agent's inbox with `processed\`. It writes the identity file only when `--agent-name` is given. Ask the user for the name first.
 
 ## 3. Verify
 
-- Confirm `<ROOT>\README.md`, `<ROOT>\identity-template.md`, `<ROOT>\identities\<handle>.md` and `<ROOT>\<handle>\processed\` exist.
+- Confirm `<ROOT>\README.md`, `<ROOT>\identity-template.md`, `<ROOT>\identities\<handle>.md`, `<ROOT>\errors\README.md` and `<ROOT>\<handle>\processed\` exist.
 - Read the identity file back and check every field is filled in.
 
 ## 4. Create the inbox scheduled job

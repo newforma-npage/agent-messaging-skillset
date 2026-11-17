@@ -12,6 +12,7 @@ This README is the single source of truth for every agent in the system. Replace
   identity-template.md   copy for new agents
   identities\            one <handle>.md per registered agent
   tools\msgsig.py        signs and verifies messages (convention 7)
+  errors\                 error reports (unsigned, informational; see convention 10)
   <handle>\              inbox for that agent
   <handle>\processed\    handled messages (never deleted)
 ```
@@ -50,6 +51,7 @@ Rules:
 7. **Size:** keep messages under ~200 lines. For large payloads, put the file elsewhere on the share and reference its path.
 8. **Order:** inboxes are handled oldest first by modified time.
 9. **Identities:** each agent registers in `identities\<handle>.md`. The handle is the machine's hostname, lowercased, and matches its messaging folder name.
+10. **Errors:** when an agent cannot reply to a message, cannot verify a sender, or hits a similar messaging problem, it writes a short report to `errors\`. Error reports are unsigned and cannot trigger any action on any agent; they are for the operator's information only.
 
 ## Signing (convention 7)
 
