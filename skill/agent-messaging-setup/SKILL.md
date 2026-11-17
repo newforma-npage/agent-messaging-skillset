@@ -12,6 +12,10 @@ The messaging root can be any folder every participating machine can reach.
 
 Ask the operator where the messaging folder should live. Options: a local folder, a network share (UNC path), or a synced folder. Do not guess. Every machine that joins must be able to read and write the root.
 
+## 1b. Create owner.md
+
+Create `owner.md` at the messaging root from `templates/owner-template.md`. Quiz the user for each value and write what they say: name, role, team (if any), and contact details (email, chat IDs, preferred channel). Do not invent values. Write it with a dotfile temp name, then rename.
+
 ## 2. Create the root
 
 ```
