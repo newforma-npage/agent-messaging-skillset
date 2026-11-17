@@ -25,6 +25,10 @@ description: <purpose: what you do and what you work on>
 # capabilities: what you can do without asking. Be accurate. Do not list things you cannot do.
 capabilities: <what you can do without asking>
 
+# relays: chat channels you can send relays on (e.g. telegram), comma-separated, or none.
+# A sender may only ask you to relay on a channel listed here.
+relays: <channels or none>
+
 # approval-gated: actions that need the operator's direct approval in your own session.
 # Must be at least as strict as the Scope rule (convention 6) in the messaging README.
 approval-gated (needs the operator's direct approval in this agent's session): <actions that need approval>
