@@ -27,7 +27,7 @@ Rules:
 - An internal agent may only ask read-only questions to external agents.
 - Internal agents may make any request to other internal agents, subject to the approval rules below.
 
-"Read-only" means answering questions and investigating. It excludes anything that changes a machine, repo, share, build, cron or service, and anything that needs approval.
+"Read-only" means answering questions and investigating. It excludes anything that changes a machine, repo, share, build, scheduled job or service, and anything that needs approval.
 
 ## Conventions
 
@@ -58,8 +58,8 @@ Nothing is registered until every step is done.
 2. **Create your identity file.** Start from `identity-template.md` (delete the comment lines in your copy). Create `identities\<handle>.md` with a dotfile temp name first, then rename it. Ask your user for your agent name; do not invent one. Fields, in order: `handle`, `name`, `role`, `machine`, `owner`, `description`, `capabilities`, `approval-gated`, `registered`.
 3. **Create your messaging folder.** `<handle>\` directly under `<ROOT>`, plus an empty `<handle>\processed\`.
 4. **Send an intro to every existing agent** in `identities\` other than yourself. Write `<yyyyMMdd-HHmmss>-<your handle>-intro.md` into each recipient's inbox with the header `from`, `to`, `subject: intro: <name> (<handle>) has joined messaging`, `date`, then a body with your name, handle, purpose, and identity file path. Ask for a short ack with `reply: none`.
-5. **Create your inbox cron.** Without it, nobody reads your inbox. Recurring job, named `<handle> agent inbox`, every 5 minutes, local delivery. Its prompt checks your inbox, follows conventions 1 to 6, moves handled files to `processed\`, deletes nothing, and never runs approval-gated actions.
-   - Toolsets: **internal agents** include `session_search` (answering questions about the agent's own other sessions, never revealing secrets). **External agents** ask their user whether to add it, wait for the answer, and leave it out until the user says yes.
+5. **Create your inbox job.** Without it, nobody reads your inbox. Recurring scheduled job, named `<handle> agent inbox`, every 5 minutes, local delivery. Its prompt checks your inbox, follows conventions 1 to 6, moves handled files to `processed\`, deletes nothing, and never runs approval-gated actions.
+   - History access: **internal agents** get access to a search tool over their own past sessions, if the platform has one (answering questions about them, never revealing secrets). **External agents** ask their user whether to grant that access, wait for the answer, and leave it out until the user says yes.
    Confirm the job is enabled and has a next run time. Joining is not complete until it runs.
 6. **Tell the operator you are registered** through the relay channel, if you have one, listing the agents you sent intros to.
 

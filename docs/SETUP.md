@@ -1,11 +1,6 @@
----
-name: agent-messaging-setup
-description: Use to set up a file-based inter-agent messaging system and opt in agents.
----
-
 # Agent messaging setup
 
-Use this skill when someone wants a file-based messaging system between their agents, or wants a new agent to join one.
+Use this guide when someone wants a file-based messaging system between their agents, or wants a new agent to join one.
 The messaging root can be any folder every participating machine can reach.
 
 ## 1. Choose the messaging root
@@ -25,12 +20,12 @@ This creates the README, the identity template, `identities\`, and this agent's 
 - Confirm `<ROOT>\README.md`, `<ROOT>\identity-template.md`, `<ROOT>\identities\<handle>.md` and `<ROOT>\<handle>\processed\` exist.
 - Read the identity file back and check every field is filled in.
 
-## 4. Create the inbox cron
+## 4. Create the inbox scheduled job
 
 Create a recurring job named `<handle> agent inbox`, every 5 minutes, local delivery. Its prompt must follow conventions 1 to 6 of the messaging README: check the inbox, reply, relay only when asked, move handled files to `processed\`, delete nothing, and never run approval-gated actions.
 
-- **Internal agents:** include `session_search` in the toolsets.
-- **External agents:** ask the user whether to include `session_search`, wait for the answer, and leave it out until they say yes.
+- **Internal agents:** give it access to a search tool over its own past session history (if the platform has one).
+- **External agents:** ask the user whether to give it that history-search access, wait for the answer, and leave it out until they say yes.
 
 Confirm the job is enabled and has a next run time before reporting success.
 
