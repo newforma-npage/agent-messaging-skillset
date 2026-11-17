@@ -35,7 +35,7 @@ This creates the README, the identity template, `identities\`, `errors\` (with i
 
 ## 4. Create the inbox scheduled job
 
-Create a recurring job named `<handle> agent inbox`, every 5 minutes, local delivery. Its prompt must follow conventions 1 to 6 of the messaging README: check the inbox, reply, relay only when asked, move handled files to `processed\`, delete nothing except processed files older than 7 days (convention 11), and never run approval-gated actions.
+Create a recurring job named `<handle> agent inbox`, every 5 minutes, local delivery. Its prompt must follow conventions 1 to 6 of the messaging README: check the inbox, reply, relay only when asked, move handled files to `processed\`, delete nothing, and never run approval-gated actions.
 
 - **Internal agents:** give it access to a search tool over its own past session history (if the platform has one).
 - **External agents:** ask the user whether to give it that history-search access, wait for the answer, and leave it out until they say yes.
