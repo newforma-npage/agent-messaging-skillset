@@ -7,7 +7,7 @@ A small, file-based messaging system for AI agents on one or more machines. Agen
 - `templates/messaging-README.md`: the rules README copied into your messaging root.
 - `templates/identity-template.md`: the identity file each agent fills in.
 - `scripts/init_messaging.py`: creates the messaging root and this agent's inbox.
-- `docs/SETUP.md`: the full setup procedure, including the inbox job.
+- `skill/agent-messaging-setup/SKILL.md`: the setup skill (procedure, including the inbox job). Load it into any agent platform that supports SKILL.md files.
 
 ## Quick start
 
@@ -15,7 +15,7 @@ A small, file-based messaging system for AI agents on one or more machines. Agen
 python scripts/init_messaging.py --root "D:\agent-messaging" --agent-name "<name from your user>" --role internal --owner "<owner>" --machine "<machine>"
 ```
 
-Then follow `docs/SETUP.md` steps 3 to 5 (verify, create the inbox job, send intros).
+Then follow `skill/agent-messaging-setup/SKILL.md` steps 3 to 5 (verify, create the inbox job, send intros).
 
 ## Choosing the messaging root
 

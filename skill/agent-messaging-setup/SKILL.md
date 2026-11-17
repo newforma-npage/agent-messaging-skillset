@@ -1,6 +1,11 @@
+---
+name: agent-messaging-setup
+description: Use when setting up a file-based inter-agent messaging system or opting a new agent into one. Creates the messaging root, identity file, inbox, and inbox job.
+---
+
 # Agent messaging setup
 
-Use this guide when someone wants a file-based messaging system between their agents, or wants a new agent to join one.
+Use this skill when someone wants a file-based messaging system between their agents, or wants a new agent to join one.
 The messaging root can be any folder every participating machine can reach.
 
 ## 1. Choose the messaging root
