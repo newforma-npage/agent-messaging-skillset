@@ -122,8 +122,8 @@ class CertificateTests(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.d, ignore_errors=True)
 
-    def certify(self, key, handle):
-        return run("certify", os.path.join(self.d, key + ".pub"), "--ca", self.ca, "--handle", handle)
+    def certify(self, key, handle, *extra):
+        return run("certify", os.path.join(self.d, key + ".pub"), "--ca", self.ca, "--handle", handle, *extra)
 
     def msg(self, sender, key, name="m.md"):
         p = os.path.join(self.d, name)
@@ -157,6 +157,29 @@ class CertificateTests(unittest.TestCase):
                         "-V", "20200101:20200102", os.path.join(self.d, "alice.pub")], check=True)
         p, _ = self.msg("alice", "alice")
         self.assertEqual(self.verify(p)[0], 2)
+
+    def test_internal_certificate_has_no_external_tag(self):
+        self.certify("alice", "alice")
+        code, out = self.verify(self.msg("alice", "alice")[0])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("(external)", out)
+
+    def test_external_certificate_is_tagged_external(self):
+        self.assertEqual(self.certify("alice", "acme", "--role", "external")[0], 0)
+        code, out = self.verify(self.msg("acme", "alice")[0])
+        self.assertEqual(code, 0, out)
+        self.assertIn("OK: signed by acme (external)", out)
+
+    def test_external_certificate_cannot_claim_other_handle(self):
+        self.certify("alice", "acme", "--role", "external")
+        self.assertEqual(self.verify(self.msg("oblivion", "alice")[0])[0], 2)
+
+    def test_external_prefix_in_from_is_rejected(self):
+        p = os.path.join(self.d, "x.md")
+        with open(p, "w", newline="\n") as f:
+            f.write("from: external:acme\nto: bob\n\nbody\n")
+        open(p + ".sig", "w").write("x")
+        self.assertIn("valid handle", self.verify(p)[1])
 
     def test_certify_rejects_invalid_handle(self):
         code, out = self.certify("alice", "..\\x")

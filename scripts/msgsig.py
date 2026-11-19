@@ -10,7 +10,7 @@ Usage:
                           [--mark] [--no-replay-check] [--allow-legacy] [--max-age-hours N]
       Copies the message and its .sig to a local folder, checks the copy against the local
       allowed_signers file, and checks the header (from/to/date/msg-id, replay). Prints
-        OK: signed by <handle>
+        OK: signed by <handle> [(external)]
         copy: <local path>
       Act only on OK, and only on the local copy. Exit 0 = valid, anything else = reject.
 
@@ -32,6 +32,7 @@ import sys
 import tempfile
 
 NAMESPACE = "messaging"
+EXTERNAL_PREFIX = "external:"
 HANDLE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 MSGID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{7,99}$")
 DEFAULT_STATE = os.path.join(os.path.expanduser("~"), ".agent-messaging")
@@ -132,7 +133,7 @@ def sign(message, key):
     print("signed: " + sig + (" (certificate)" if signer == cert else ""))
 
 
-def certify(pubkey, ca, handle, days):
+def certify(pubkey, ca, handle, days, role="internal"):
     if not HANDLE_RE.match(handle or ""):
         raise Reject("--handle is not a valid handle")
     if not pubkey.endswith(".pub") or not os.path.isfile(pubkey):
@@ -141,11 +142,12 @@ def certify(pubkey, ca, handle, days):
         raise Reject("CA key must be an existing local file: " + ca)
     if days < 1:
         raise Reject("--days must be at least 1")
-    r = subprocess.run([ssh_keygen(), "-q", "-s", ca, "-I", handle, "-n", handle,
+    principal = EXTERNAL_PREFIX + handle if role == "external" else handle
+    r = subprocess.run([ssh_keygen(), "-q", "-s", ca, "-I", principal, "-n", principal,
                         "-V", "+%dd" % days, "-O", "clear", pubkey])
     if r.returncode != 0:
         raise Reject("certify failed")
-    print("certificate: " + pubkey[:-len(".pub")] + "-cert.pub")
+    print("certificate: %s-cert.pub (principal %s)" % (pubkey[:-len(".pub")], principal))
 
 
 def load_seen(path):
@@ -169,9 +171,14 @@ def check_copy(copy, me, signers, seen, replay_check, allow_legacy, max_age_hour
         sig_hash = "sha256:" + hashlib.sha256(f.read()).hexdigest()
     fields = parse_header(raw.decode("utf-8-sig", errors="replace"))
     handle = fields["from"]
-    r = subprocess.run([ssh_keygen(), "-Y", "verify", "-f", signers, "-I", handle,
-                        "-n", NAMESPACE, "-s", copy + ".sig"], input=raw, capture_output=True)
-    if r.returncode != 0:
+    role = None
+    for principal, name in ((handle, "internal"), (EXTERNAL_PREFIX + handle, "external")):
+        r = subprocess.run([ssh_keygen(), "-Y", "verify", "-f", signers, "-I", principal,
+                            "-n", NAMESPACE, "-s", copy + ".sig"], input=raw, capture_output=True)
+        if r.returncode == 0:
+            role = name
+            break
+    if role is None:
         raise Reject("signature does not match a pinned key for " + handle)
     if fields.get("to") != me:
         raise Reject("to: is %r, not %s" % (fields.get("to"), me))
@@ -196,7 +203,7 @@ def check_copy(copy, me, signers, seen, replay_check, allow_legacy, max_age_hour
         for k in keys:
             if k in seen:
                 raise Reject("replay: already accepted as %s" % seen[k]["file"])
-    return handle, legacy, keys
+    return handle, legacy, keys, role
 
 
 def verify(message, me, signers, state, mark=False, replay_check=True, allow_legacy=False, max_age_hours=24.0):
@@ -217,7 +224,7 @@ def verify(message, me, signers, state, mark=False, replay_check=True, allow_leg
         shutil.copyfile(message + ".sig", copy + ".sig")
         seen_path = os.path.join(state, "seen.json")
         seen = load_seen(seen_path)
-        handle, legacy, keys = check_copy(copy, me, signers, seen, replay_check, allow_legacy, max_age_hours)
+        handle, legacy, keys, role = check_copy(copy, me, signers, seen, replay_check, allow_legacy, max_age_hours)
     except Exception:
         shutil.rmtree(dest, ignore_errors=True)
         raise
@@ -226,7 +233,8 @@ def verify(message, me, signers, state, mark=False, replay_check=True, allow_leg
         for k in keys:
             seen[k] = {"file": os.path.basename(message), "at": stamp}
         save_seen(seen_path, seen)
-    print("OK: signed by %s%s" % (handle, " (legacy header)" if legacy else ""))
+    print("OK: signed by %s%s%s" % (handle, " (external)" if role == "external" else "",
+                                   " (legacy header)" if legacy else ""))
     print("copy: " + copy)
 
 
@@ -241,6 +249,8 @@ def main(argv=None):
     c.add_argument("--ca", required=True, help="local CA private key")
     c.add_argument("--handle", required=True)
     c.add_argument("--days", type=int, default=90)
+    c.add_argument("--role", choices=("internal", "external"), default="internal",
+                   help="external issues principal external:<handle>; verify then prints (external)")
     v = sub.add_parser("verify")
     v.add_argument("message")
     v.add_argument("--me", required=True, help="your own handle; to: must match it")
@@ -257,7 +267,7 @@ def main(argv=None):
         if a.cmd == "sign":
             sign(a.message, a.key)
         elif a.cmd == "certify":
-            certify(a.pubkey, a.ca, a.handle, a.days)
+            certify(a.pubkey, a.ca, a.handle, a.days, a.role)
         else:
             verify(a.message, a.me, a.signers or os.path.join(a.state, "allowed_signers"), a.state,
                    a.mark, not a.no_replay_check, a.allow_legacy, a.max_age_hours)
